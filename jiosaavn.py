@@ -3,6 +3,8 @@ import endpoints
 import helper
 import json
 from traceback import print_exc
+from urllib.parse import urlparse
+from requests.compat import urljoin
 
 def search_for_song(query,lyrics,songdata):
     if query.startswith('http') and 'saavn.com' in query:
@@ -73,14 +75,41 @@ def get_playlist(listId,lyrics):
         return None
 
 def get_playlist_id(input_url):
-    res = requests.get(input_url).text
-    try:
-        return res.split('"type":"playlist","id":"')[1].split('"')[0]
-    except IndexError:
-        return res.split('"page_id","')[1].split('","')[0]
+    your_url = input_url
+    final_url = urlparse(urljoin(your_url, "/"))
+    is_correct = (all([final_url.scheme, final_url.netloc, final_url.path]) 
+              and len(final_url.netloc.split(".")) > 1)
+    if is_correct:
+        res = requests.get(input_url).text
+        try:
+            if '"type":"playlist","id":"' in res:
+                return res.split('"type":"playlist","id":"')[1].split('"')[0]
+            else:
+                return input_url   
+            return res.split('"type":"playlist","id":"')[1].split('"')[0]
+        except IndexError:
+            return res.split('"page_id","')[1].split('","')[0]
+    else:
+        return input_url
 
 def get_lyrics(id):
     url = endpoints.lyrics_base_url+id
     lyrics_json = requests.get(url).text
     lyrics_text = json.loads(lyrics_json)
     return lyrics_text['lyrics']
+
+def get_embed_url(id):
+    if id.isnumeric():
+        response = {
+            "status": True,
+            "embed_base_url":endpoints.embed_base_url+id
+        }
+        #response = [("embed_base_url",endpoints.embed_base_url+id)]
+        embed_json = response
+    else:
+        embed_json = {
+            "status": False,
+            "error":'Not valid Playlist!'
+        }
+        #embed_json = [("embed_base_url","Not valid Playlist")]
+    return embed_json

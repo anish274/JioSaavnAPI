@@ -76,6 +76,21 @@ def playlist():
         }
         return jsonify(error)
 
+@app.route('/embedlink/')
+def embedlink():
+    lyrics = False
+    query = request.args.get('query')
+    if query:
+        id = jiosaavn.get_playlist_id(query)
+        #return id
+        return jsonify(jiosaavn.get_embed_url(id))
+    else:
+        error = {
+            "status": False,
+            "error":'Query is required to search playlists!'
+        }
+        return jsonify(error)
+
 @app.route('/album/')
 def album():
     lyrics = False
