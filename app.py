@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, jsonify, json
+from flask import Flask, request, redirect, jsonify, json, render_template
 import time
 import jiosaavn
 import os
@@ -12,7 +12,7 @@ CORS(app)
 
 @app.route('/')
 def home():
-    return redirect("https://cyberboysumanjay.github.io/JioSaavnAPI/")
+    return render_template('index.html')
 
 @app.route('/song/')
 def search():
