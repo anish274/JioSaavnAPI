@@ -13,6 +13,7 @@ $(document).ready(function() {
 		})
 		.done(function(data) {
 			if (!data.error) {
+				$('.notion-details').removeClass('d-none');
 				$('#embedurl').val(data.embed_base_url);
 			}
 			else {
